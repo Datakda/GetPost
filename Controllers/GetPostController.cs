@@ -19,9 +19,9 @@ namespace GetPost.Controllers
         {
            MinMax rnd = new MinMax();
 
-            WebRequest request = WebRequest.Create("https://testgetpost1241414.000webhostapp.com/rnd.txt");
-            WebResponse response = request.GetResponse();
-            using (Stream stream = response.GetResponseStream())
+            WebRequest GETrequest = WebRequest.Create("http://185.195.26.249:8888/RandomDouble");
+            WebResponse GETresponse = GETrequest.GetResponse();
+            using (Stream stream = GETresponse.GetResponseStream())
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {
@@ -32,8 +32,21 @@ namespace GetPost.Controllers
 
                 }
             }
-            response.Close();
-            return $"Min = {rnd.Min}, Max = {rnd.Max}";
+            GETresponse.Close();
+            return JsonSerializer.Serialize<MinMax>(rnd);
+
+
+            WebRequest POSTrequest = WebRequest.Create("URL");
+            POSTrequest.Method = "POST";
+            string MinAndMax = $"Min={rnd.Min}&Max={rnd.Max}";
+            byte[] byteArray = System.Text.Encoding.UTF8.GetBytes(MinAndMax);
+            POSTrequest.ContentType = "application/x-www-form-urlencoded";
+            POSTrequest.ContentLength = byteArray.Length;
+
+            using (Stream dataStream = POSTrequest.GetRequestStream())
+            {
+                dataStream.Write(byteArray, 0, byteArray.Length);
+            }
 
         }
     }
